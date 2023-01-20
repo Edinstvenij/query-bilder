@@ -2,50 +2,40 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Builders\UserBuilder;
-use Illuminate\Database\Eloquent\Builder;
+use App\Presenter\UserPresenter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use App\Traits\Eloquent\HasPublished;
+use App\QueryBuilders\UserBuilder;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use Notifiable;
+    use HasFactory;
+    use HasPublished;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'users';
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'first_name', 'last_name', 'middle_name', 'phone', 'email', 'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
+    public function getDetailAttribute(): UserPresenter
+    {
+        return new UserPresenter($this);
+    }
 
     public function newEloquentBuilder($query): UserBuilder
     {
         return new UserBuilder($query);
-    }}
+    }
+}
